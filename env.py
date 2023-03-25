@@ -7,12 +7,11 @@ import numpy as np
 
 G = pickle.load(open("graph.pkl", "rb"))
 
-
 class Env(gym.Env):
 
     def __init__(self):
         super().__init__()
-        self.T = 100
+        self.T = 10
         self.graph = deepcopy(G["graph"])
         self.act_set = deepcopy(G["act_set"])
         w, h = G["maze_size"]
@@ -41,10 +40,8 @@ class Env(gym.Env):
 
         return state, reward, done, {}
 
-
 def make_fn():
     return Env()
-
 
 if __name__ == "__main__":
     env = Env()
