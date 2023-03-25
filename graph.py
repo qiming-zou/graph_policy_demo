@@ -1,14 +1,15 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import pickle
+import random
 
 w = h = 10
 act_set = ["left", "right", "up", "down"]
+goal_set = list(range(10))
 G = nx.Graph()
 
 nodes = [(xi, xj) for xi in range(h) for xj in range(w)]
-for node in nodes:
-    G.add_node(node)
+G.add_nodes_from(nodes)
 
 for node in nodes:
     for act in act_set:
@@ -28,9 +29,11 @@ for node in nodes:
         node_next = tuple(node_next)
         G.add_edge(node, node_next, name=act)
         G.nodes[node][act] = node_next
+        G.nodes[node]["achieved_goal"] = random.choice(goal_set) if random.random() < 0.2 else None
+
         # G[node]["act"] = node_next
 
 pickle.dump({
-    "graph": G, "act_set": act_set, "maze_size": (w, h)},
+    "graph": G, "act_set": act_set, "goal_set": goal_set, "maze_size": (w, h)},
     open("graph.pkl", "wb")
 )

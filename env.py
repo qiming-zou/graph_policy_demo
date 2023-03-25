@@ -11,30 +11,31 @@ class Env(gym.Env):
 
     def __init__(self):
         super().__init__()
-        self.T = 10
+        self.T = 100
         self.graph = deepcopy(G["graph"])
         self.act_set = deepcopy(G["act_set"])
+        self.goal_set = deepcopy(G["goal_set"])
         w, h = G["maze_size"]
         self.action_space = gym.spaces.Discrete(n=len(self.act_set))
         self.observation_space = gym.spaces.Box(
-            low=np.asarray([0, 0, 0, 0]), high=np.asarray([w, h, w, h]), shape=(4,)
+            low=np.asarray([0, 0, 0]), high=np.asarray([w, h, w]), shape=(3,)
         )
 
     def reset(self, **kwargs):
         self.t = 1
         self.node_t = list(self.graph.nodes)[0]
-        self.node_goal = random.choice(list(self.graph.nodes))
-        state = list(self.node_t) + list(self.node_goal)
+        self.goal = random.choice(self.goal_set)
+        state = list(self.node_t) + [self.goal]
         return state
 
     def step(self, act_id):
         self.t += 1
         action = self.act_set[act_id]
         self.node_t = self.graph.nodes[self.node_t][action]
-        state = list(self.node_t) + list(self.node_goal)
+        state = list(self.node_t) + [self.goal]
 
         timeout = self.t >= self.T
-        success = self.node_t == self.node_goal
+        success = self.graph.nodes[self.node_t]["achieved_goal"] == self.goal
         reward = float(success)
         done = (success) or (timeout)
 
