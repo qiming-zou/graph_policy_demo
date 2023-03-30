@@ -14,7 +14,7 @@ class Env(gym.Env):
         self.T = 100
         self.graph = deepcopy(G["graph"])
         self.act_set = deepcopy(G["act_set"])
-        self.goal_set = deepcopy(G["goal_set"])
+        self.goal_id_to_goal = deepcopy(G["goal_id_to_goal"])
         w, h = G["maze_size"]
         self.action_space = gym.spaces.Discrete(n=len(self.act_set))
         self.observation_space = gym.spaces.Box(
@@ -24,22 +24,20 @@ class Env(gym.Env):
     def reset(self, **kwargs):
         self.t = 1
         self.node_t = list(self.graph.nodes)[0]
-        self.goal = random.choice(self.goal_set)
-        state = list(self.node_t) + [self.goal]
-        return state
+        self.goal_id = random.choice(self.goal_id_to_goal.goal_id_set)
+        return {"state": list(self.node_t), "goal_id": self.goal_id}
 
     def step(self, act_id):
         self.t += 1
         action = self.act_set[act_id]
         self.node_t = self.graph.nodes[self.node_t][action]
-        state = list(self.node_t) + [self.goal]
 
         timeout = self.t >= self.T
-        success = self.graph.nodes[self.node_t]["achieved_goal"] == self.goal
+        success = self.goal_id in self.graph.nodes[self.node_t]["achieved_goal"].keys()
         reward = float(success)
         done = (success) or (timeout)
 
-        return state, reward, done, {}
+        return {"state": self.node_t, "goal_id": self.goal_id}, reward, done, {}
 
 def make_fn():
     return Env()
