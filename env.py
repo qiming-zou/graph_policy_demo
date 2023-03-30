@@ -4,6 +4,7 @@ from copy import deepcopy
 import random
 import pickle
 import numpy as np
+from graph import GoalID2Goal
 
 G = pickle.load(open("graph.pkl", "rb"))
 
@@ -24,8 +25,8 @@ class Env(gym.Env):
     def reset(self, **kwargs):
         self.t = 1
         self.node_t = list(self.graph.nodes)[0]
-        self.goal_id = random.choice(self.goal_id_to_goal.goal_id_set)
-        return {"state": list(self.node_t), "goal_id": self.goal_id}
+        self.goal_id = random.choice(self.goal_id_to_goal.id_set)
+        return {"state_id": self.node_t, "goal_id": self.goal_id}
 
     def step(self, act_id):
         self.t += 1
@@ -33,11 +34,11 @@ class Env(gym.Env):
         self.node_t = self.graph.nodes[self.node_t][action]
 
         timeout = self.t >= self.T
-        success = self.goal_id in self.graph.nodes[self.node_t]["achieved_goal"].keys()
+        success = self.goal_id in self.graph.nodes[self.node_t]["achieved_goal"]
         reward = float(success)
         done = (success) or (timeout)
 
-        return {"state": self.node_t, "goal_id": self.goal_id}, reward, done, {}
+        return {"state_id": self.node_t, "goal_id": self.goal_id}, reward, done, {}
 
 def make_fn():
     return Env()

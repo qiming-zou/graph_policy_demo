@@ -84,17 +84,18 @@ for node in G.nodes:
 
 
 # goal
-class GoalID2Goal():
+class GoalID2Goal(ID2Info):
     def __init__(self):
-        self.goal_id_set = list(range(10))
-        self.goal_id_to_goal_np = to_np([to_onehot(goal_id, 10) for goal_id in self.goal_id_set])
+        super().__init__()
+        self.id_set = list(range(10))
+        self.id_to_info_np = to_np([to_onehot(goal_id, 10) for goal_id in self.id_set])
 
 
 
 goal_id_to_goal = GoalID2Goal()
 for node in G.nodes:
     G.nodes[node]["achieved_goal"] = set()
-    G.nodes[node]["achieved_goal"].add(random.choice(goal_id_to_goal.goal_id_set) if random.random() < 0.2 else None)
+    G.nodes[node]["achieved_goal"].add(random.choice(goal_id_to_goal.id_set) if random.random() < 0.2 else None)
 
 # encoder
 s_enc = MLP(in_dim=2)
@@ -110,3 +111,9 @@ pickle.dump(
         "encoder": {"s_enc": s_enc, "g_enc": g_enc}
     }, open("graph.pkl", "wb")
 )
+
+def pickle_load(path):
+    from graph import GoalID2Goal
+    from graph import StateID2State
+    return pickle.load(open(path, "rb"))
+
