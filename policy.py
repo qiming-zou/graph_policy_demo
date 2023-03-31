@@ -3,12 +3,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 from tianshou.utils.net.common import MLP, Net
 from zqmtool.other import to_np, to_th
+from save_graph import pickle_load
 
 
 class Policy(nn.Module):
-    def __init__(self, G, device, hidden_dim=128):
+    def __init__(self, env_name, device, hidden_dim=128):
         super().__init__()
         self.device = device
+        G = pickle_load(path=f"{env_name}/graph.pkl")
         self.s_enc = G["encoder"]["s_enc"]
         self.g_enc = G["encoder"]["g_enc"]
         a_dim = G["n_act"]

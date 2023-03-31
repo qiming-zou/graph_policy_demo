@@ -2,9 +2,9 @@ import torch.cuda
 from torch.utils.tensorboard import SummaryWriter
 import tianshou as ts
 from env import make_fn
-from save_graph import pickle_load
 from policy import Policy
 
+env_name = "maze"
 lr, epoch, batch_size = 1e-3, 10, 64
 train_num, test_num = 10, 100
 gamma, n_step, target_freq = 0.9, 3, 320
@@ -14,12 +14,10 @@ step_per_epoch, step_per_collect = 10000, train_num
 logger = ts.utils.TensorboardLogger(SummaryWriter('log/dqn'))
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-# you can also try with SubprocVectorEnv
-train_envs = ts.env.DummyVectorEnv([lambda: make_fn() for _ in range(train_num)])
-test_envs = ts.env.DummyVectorEnv([lambda: make_fn() for _ in range(test_num)])
+train_envs = ts.env.DummyVectorEnv([lambda: make_fn(env_name=env_name) for _ in range(train_num)])
+test_envs = ts.env.DummyVectorEnv([lambda: make_fn(env_name=env_name) for _ in range(test_num)])
 
-G = pickle_load(path="graph.pkl")
-net = Policy(G=G, device=device)
+net = Policy(env_name=env_name, device=device)
 optim = torch.optim.Adam(net.parameters(), lr=lr)
 
 policy = ts.policy.DQNPolicy(net, optim, gamma, n_step, target_update_freq=target_freq)

@@ -4,14 +4,14 @@ from copy import deepcopy
 import random
 import pickle
 import numpy as np
-from def_graph import GoalID2Goal
+from save_graph import pickle_load
 
-G = pickle.load(open("graph.pkl", "rb"))
+
 
 
 class Env(gym.Env):
 
-    def __init__(self):
+    def __init__(self, G):
         super().__init__()
         self.T = 100
         self.graph = deepcopy(G["graph"])
@@ -39,12 +39,13 @@ class Env(gym.Env):
         return {"state_id": self.node_t, "goal_id": self.goal_id}, reward, done, {}
 
 
-def make_fn():
-    return Env()
+def make_fn(env_name):
+    G = pickle_load(path=f"{env_name}/graph.pkl")
+    return Env(G=G)
 
 
 if __name__ == "__main__":
-    env = Env()
+    env = make_fn(env_name="maze")
     for i in range(10000):
         env.reset()
         done = False

@@ -1,3 +1,5 @@
+import os.path
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import pickle
@@ -7,14 +9,23 @@ from collections import defaultdict
 from encoder import MLP
 from zqmtool.other import to_np
 from scipy.spatial.distance import cdist
-from def_graph import StateID2State, GoalID2Goal, StateID2AchievedGoalID, StateIDtoNextStateID
 
 
 def pickle_load(path):
-    from def_graph import GoalID2Goal
-    from def_graph import StateID2State
+    env_name = os.path.dirname(path)
+    assert env_name in ["maze"]
+    if env_name == "maze":
+        from maze.def_graph import StateID2State, GoalID2Goal, StateID2AchievedGoalID, StateIDtoNextStateID
+    else:
+        raise NotImplementedError
     return pickle.load(open(path, "rb"))
 
+
+env_name = "maze"
+if env_name == "maze":
+    from maze.def_graph import StateID2State, GoalID2Goal, StateID2AchievedGoalID, StateIDtoNextStateID
+else:
+    raise NotImplementedError
 
 G = nx.Graph()
 
@@ -53,5 +64,5 @@ pickle.dump(
         "state_id_to_achieved_goal_id": state_id_to_achieved_goal_id,
         "n_act": len(state_id_to_next_state_id.act_set),
         "encoder": {"s_enc": s_enc, "g_enc": g_enc}
-    }, open("graph.pkl", "wb")
+    }, open(f"{env_name}/graph.pkl", "wb")
 )
