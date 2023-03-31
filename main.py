@@ -1,13 +1,8 @@
-import gym
-import torch, numpy as np, torch.nn as nn
 import torch.cuda
 from torch.utils.tensorboard import SummaryWriter
 import tianshou as ts
 from env import make_fn
-from graph import pickle_load
-
-from tianshou.utils.net.common import Net
-import pickle
+from save_graph import pickle_load
 from policy import Policy
 
 lr, epoch, batch_size = 1e-3, 10, 64
@@ -28,7 +23,8 @@ net = Policy(G=G, device=device)
 optim = torch.optim.Adam(net.parameters(), lr=lr)
 
 policy = ts.policy.DQNPolicy(net, optim, gamma, n_step, target_update_freq=target_freq)
-train_collector = ts.data.Collector(policy, train_envs, ts.data.VectorReplayBuffer(buffer_size, train_num), exploration_noise=True)
+train_collector = ts.data.Collector(policy, train_envs, ts.data.VectorReplayBuffer(buffer_size, train_num),
+                                    exploration_noise=True)
 test_collector = ts.data.Collector(policy, test_envs, exploration_noise=True)  # because DQN uses epsilon-greedy method
 
 result = ts.trainer.offpolicy_trainer(

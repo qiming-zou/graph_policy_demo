@@ -11,9 +11,9 @@ class Policy(nn.Module):
         self.device = device
         self.s_enc = G["encoder"]["s_enc"]
         self.g_enc = G["encoder"]["g_enc"]
-        a_dim = len(G["act_set"])
+        a_dim = G["n_act"]
         self.goal_id_to_goal = G["goal_id_to_goal"]
-        self.state_id_to_goal = G["state_id_to_goal"]
+        self.state_id_to_state = G["state_id_to_state"]
 
         self.net = nn.Sequential(
             nn.Linear(self.s_enc.z_dim + self.g_enc.z_dim, hidden_dim), nn.ReLU(),
@@ -25,7 +25,7 @@ class Policy(nn.Module):
 
     def forward(self, obs, state, info):
         """Mapping: obs -> flatten (inside MLP)-> logits."""
-        s = to_th(self.state_id_to_goal(obs["state_id"]), device=self.device)
+        s = to_th(self.state_id_to_state(obs["state_id"]), device=self.device)
         g = to_th(self.goal_id_to_goal(obs["goal_id"]), device=self.device)
         z_s, *_ = self.s_enc(s)
         z_g, *_ = self.g_enc(g)
